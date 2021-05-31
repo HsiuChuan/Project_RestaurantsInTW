@@ -12,7 +12,12 @@ There are two data processing pipelines in this project. One is collecting histo
 
 
 
+
+
 ![](ETL_PipelineII.png)
+
+
+
 
 
 
