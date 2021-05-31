@@ -34,7 +34,7 @@ My data pipeline here is called “places_update_dag ” and there are 3 steps t
 
 
 As for the SQL schema, here is the schma figure of MySQL database:
-
+![](SQL_Schema.png)
 
 #### Data Visualization
 `PlotlyDash/WebShow.py`
