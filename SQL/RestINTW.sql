@@ -56,12 +56,12 @@ AFTER INSERT ON update_info
 FOR EACH ROW 
 UPDATE store_info
 SET store_info.rating = NEW.rating,
-store_info.user_ratings_total = NEW.user_ratings_total,
-store_info.url = NEW.url,
-store_info.website = NEW.website,
-store_info.formatted_phone_number = NEW.formatted_phone_number,
-store_info.formatted_address = NEW.formatted_address,
-store_info.Update_time = NEW.Update_time
+	store_info.user_ratings_total = NEW.user_ratings_total,
+	store_info.url = NEW.url,
+	store_info.website = NEW.website,
+	store_info.formatted_phone_number = NEW.formatted_phone_number,
+	store_info.formatted_address = NEW.formatted_address,
+	store_info.Update_time = NEW.Update_time
 WHERE store_info.place_id = NEW.place_id;
 
 
