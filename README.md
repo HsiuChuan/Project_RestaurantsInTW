@@ -9,6 +9,12 @@ The primary goal of this project was to gain a deeper understanding of data engi
 There are two data processing pipelines in this project. One is collecting historic data and the other is updating the new data. Both data pipelines are collected into MySQL database and are shown by the Plotly Dash with HEROKU on website.
 
 
+
+
+![](ETL_Pipeline.png)
+
+
+
 ### The Process
 #### Batch Data Processing
 
