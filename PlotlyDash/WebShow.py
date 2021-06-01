@@ -11,12 +11,10 @@ import pandas as pd
 import googlemaps
 pd.options.mode.chained_assignment = None  # default='warn'
 
-# mysql://ba9c1bb5011c99:f6d08db7@us-cdbr-east-03.cleardb.com/heroku_6e64764cb9b4e3a?reconnect=true
-
 ## Load data from heroku mysql
 mydb = pymysql.connect(host='us-cdbr-east-03.cleardb.com',
-                       user='ba9c1bb5011c99',
-                       password='f6d08db7',
+                       user='',
+                       password='',
                        db='heroku_6e64764cb9b4e3a',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -272,7 +270,7 @@ def update_bargraph(country_slctd, PL_slctd, Ra_slctd, UM_slctd, Key_slctd):
                       xaxis=dict(title="Total Rating Users"))
     return fig
 
-mapbox_access_token = "pk.eyJ1IjoiaGhzdSIsImEiOiJja290dG9vYTkwY3JxMndrN2RiZ2Q3aWJyIn0.zgfIK0Wtlu08r60x4sfsyw"
+mapbox_access_token = " "
 @app.callback(
     dash.dependencies.Output('map-fig', 'figure'),
     [
@@ -302,7 +300,7 @@ def update_TWmap(country_slctd, PL_slctd, Ra_slctd, UM_slctd, Key_slctd):
     return fig
 
 # Google Place API
-API_KEY = 'AIzaSyAqFxFavHPg47nDrlxDdlP9SVyc_UyCHRU'
+API_KEY = ''
 gmaps = googlemaps.Client(key=API_KEY)
 
 @app.callback(
