@@ -51,6 +51,7 @@ fig.update_layout(margin={"r": 0, "t": 0, "l": 2, "b": 0})
 # hist2-figure
 df['country'] = df['related_place'].str[:3]
 dfG = df.groupby(['country']).count().sort_values("name", ascending=False)
+dfG = dfG.rename(columns={'country':'Country'})
 
 dfG = dfG.rename(columns = {'name':'Number of Stores'})
 fig2 = px.bar(dfG, y='Number of Stores', x=dfG.index, text='Number of Stores')
@@ -85,8 +86,8 @@ fig4.update_traces(textposition='outside',marker_color='rgb(66,209,179)', marker
 fig4.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
 # hist5-figure
-dfK = df.groupby(['price_level']).count().sort_values("name", ascending=False)
-dfK = dfK.rename(columns={'name':'Number of Stores'})
+dfK = df.rename(columns={'name':'Number of Stores', 'price_level':'Price Level'})
+dfK = dfK.groupby(['Price Level']).count().sort_values("Number of Stores", ascending=False)
 
 fig5 = px.bar(dfK, x='Number of Stores', y=dfK.index, text='Number of Stores', orientation='h')
 fig5.update_traces(textposition='outside',marker_color='rgb(66,209,179)', marker_line_color='rgb(0,155,76)',
@@ -94,13 +95,16 @@ fig5.update_traces(textposition='outside',marker_color='rgb(66,209,179)', marker
 fig5.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
 
+
+
 # ===========================================================================================
+
 ## Create an app with themes
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
                 meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}]
                 )
-# server = app.server
+server = app.server
 
 app.layout = dbc.Container([
 
@@ -156,7 +160,7 @@ app.layout = dbc.Container([
 
 # Google Place
     dbc.Row(
-        dbc.Col(html.H3("Finding Rrestaurants With Around You",
+        dbc.Col(html.H3("Finding Rrestaurants Around You",
                         className='text-left mb-4'),
                 width=12)
     ),
@@ -183,7 +187,7 @@ app.layout = dbc.Container([
 
 # Reference
     dbc.Row(
-        dbc.Col(html.H3("Reference",
+        dbc.Col(html.H3("References",
                         className='text-left mb-4'),
                 width=12)
     ),
@@ -263,9 +267,9 @@ def update_bargraph(country_slctd, PL_slctd, Ra_slctd, UM_slctd, Key_slctd):
                                  text=dff_sorted['name'],
                                  orientation='h')])  # hovertext=dff_sorted['name'],
     fig.update_traces(marker_color=bar_color2, textposition='inside')
-    fig.update_layout(yaxis=dict(autorange="reversed"),
-                      width=620, height=480, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-
+    fig.update_layout(yaxis=dict(title="Ranking", autorange="reversed"),
+                      width=620, height=480, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                      xaxis=dict(title="Total Rating Users"))
     return fig
 
 mapbox_access_token = "pk.eyJ1IjoiaGhzdSIsImEiOiJja290dG9vYTkwY3JxMndrN2RiZ2Q3aWJyIn0.zgfIK0Wtlu08r60x4sfsyw"
@@ -307,11 +311,9 @@ gmaps = googlemaps.Client(key=API_KEY)
 )
 def google_place(Place_ip):
     # Convert lat & lng to distance
-    from math import sqrt
     from math import cos
     from math import sin
     import math
-    import decimal
 
     def rad(d):
         return d * math.pi / 180.0
@@ -331,6 +333,7 @@ def google_place(Place_ip):
 
     df['lat'] = df['lat'].astype(float)
     df['lng'] = df['lng'].astype(float)
+
     if geocode_result:
         latG = geocode_result[0]['geometry']['location']['lat']
         lngG = geocode_result[0]['geometry']['location']['lng']
@@ -341,36 +344,37 @@ def google_place(Place_ip):
             dff = df[df['dis'] < k]
             k -= 0.1
 
-        dff_sorted = dff.sort_values(by=['dis', 'user_ratings_total', 'rating'],
-                                     ascending=[True, False, False]).head()
+        dffM_sorted = dff.sort_values(by=['user_ratings_total', 'rating', 'dis'],
+                                      ascending=[False, False, True]).head()
 
-        fig = go.Figure(data=[go.Bar(x=dff_sorted['user_ratings_total'].astype(int).to_list(), y=list(range(1, len(dff)+1)),
-                                     text=dff_sorted['name'],
+        fig = go.Figure(data=[go.Bar(x=dffM_sorted['user_ratings_total'].astype(int).to_list(),
+                                     y=list(range(1, len(dff)+1)),
+                                     text=dffM_sorted['name'],
                                      orientation='h')])  # hovertext=dff_sorted['name'],
         fig.update_traces(marker_color='lightsalmon', textposition='inside')
-        fig.update_layout(yaxis=dict(autorange="reversed"),
-                          width=620, height=480, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(yaxis=dict(title="Ranking", autorange="reversed"),
+                          width=620, height=480, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                          xaxis=dict(title="Total Rating Users"))
 
         return fig
     else:
-        return None
+        return 'No Result !'
+
+
 
 @app.callback(
     dash.dependencies.Output('map2-fig', 'figure'),
     [dash.dependencies.Input('Place_ip', 'value')]
 )
-# Convert lat & lng to distance
 
 def Show_google_place(Place_ip):
+    # Convert lat & lng to distance
     from math import cos
     from math import sin
     import math
-    import decimal
-
 
     def rad(d):
         return d * math.pi / 180.0
-
 
     def getDistance(lat1, lng1, lat2, lng2):
         EARTH_REDIUS = 6378.137
@@ -378,13 +382,16 @@ def Show_google_place(Place_ip):
         radLat2 = rad(lat2)
         a = radLat1 - radLat2
         b = rad(lng1) - rad(lng2)
-        s = 2 * math.asin(math.sqrt(math.pow(sin(a / 2), 2) + cos(radLat1) * cos(radLat2) * math.pow(sin(b / 2), 2)))
+        s = 2 * math.asin(
+            math.sqrt(math.pow(sin(a / 2), 2) + cos(radLat1) * cos(radLat2) * math.pow(sin(b / 2), 2)))
         s = s * EARTH_REDIUS
         return s
 
-
     # Obtain lat & lng from input
     geocode_result = gmaps.geocode(Place_ip)
+
+    df['lat'] = df['lat'].astype(float)
+    df['lng'] = df['lng'].astype(float)
 
     if geocode_result:
         latG = geocode_result[0]['geometry']['location']['lat']
@@ -396,22 +403,22 @@ def Show_google_place(Place_ip):
             dff = df[df['dis'] < k]
             k -= 0.1
 
-        dff_sorted = dff.sort_values(by=['dis', 'user_ratings_total', 'rating'],
-                                     ascending=[True, False, False]).head()
+        dffM_sorted = dff.sort_values(by=['user_ratings_total', 'rating', 'dis'],
+                                      ascending=[False, False, True]).head()
 
-        fig = px.scatter_mapbox(dff_sorted, lat="lat", lon="lng", hover_name="name",
-                                color=dff_sorted["rating"].astype(float).tolist(),
-                                size=dff_sorted["rating"].astype(float).tolist(),
+        fig = px.scatter_mapbox(dffM_sorted, lat="lat", lon="lng", hover_name="name",
+                                color=dffM_sorted["rating"].astype(float).tolist(),
+                                size=dffM_sorted["rating"].astype(float).tolist(),
                                 color_continuous_scale=px.colors.cyclical.IceFire,
                                 zoom=12, height=330)
-        fig.update_layout(mapbox=dict(accesstoken=mapbox_access_token)) # mapbox_style
+        fig.update_layout(mapbox=dict(accesstoken=mapbox_access_token))  # mapbox_style
         fig.update_layout(margin={"r": 0, "t": 0, "l": 2, "b": 0})
         return fig
     else:
-        return None
-
+        return 'No Result !'
 
 
 # ===========================================================================================
+
 if __name__ == '__main__':
     app.run_server(debug=True)
