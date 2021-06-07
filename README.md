@@ -1,5 +1,5 @@
 # Project_RestaurantsInTW
-Collect infomation of restaurants in Taiwan through Google API.
+Collect information on restaurants in Taiwan through Google API.
 
 
 ## Goal
