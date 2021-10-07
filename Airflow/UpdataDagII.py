@@ -143,7 +143,7 @@ class StoresUpdate():
 
 
 MySqlPasswd = 'ji3k27mysql'
-google_key = 'AIzaSyAqFxFavHPg47nDrlxDdlP9SVyc_UyCHRU'
+google_key = ''
 mongoPasswd = '$rW8QTpd6D5vS8m'
 
 SU = StoresUpdate(MySqlPasswd, google_key, mongoPasswd)
