@@ -31,7 +31,7 @@ My data pipeline here is called “places_update_dag ” and there are 3 steps t
 
 1. `obtain_needed_placeid`:This function is to get the head 10 rows of restaurnts data ordered by the total user ratings in MySQL database which means the updating order is from the most popular place to the less.  
 
-2. `insert_data2mongo`:After having the Json file data by the first step, the data would stored into MongoDB which is a Database for Json file data. 
+2. `insert_data2mongo`:After having the Json file data by the first step, the data would stored into MongoDB.
 
 3. `copy_data2mysql`: From the complete json data, extract the needed keys and valuse and store the data into local MySQL database.
 
